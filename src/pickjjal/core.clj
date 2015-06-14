@@ -8,16 +8,17 @@
 (defn- best-jjal [urls]
   (letfn [(large-img? [url]
             "returns true if img is > 100 kb"
-            (when-let [len (-> (client/get url {:throw-exceptions false})
-                               (get-in [:headers "Content-Length"]))]
-            (-> len
-                Long/parseLong
-                (> 100000))))]
+            (let [resp (-> (client/get url {:throw-exceptions false}))]
+              (if (= 200 (:status resp))
+                (-> (get-in resp [:headers "Content-Length"])
+                    Long/parseLong
+                    (> 100000))
+                true)))]
     (first (drop-while large-img? urls))))
 
 (defn get-jjal [query]
   "Retrieves first relevant image from google image search based on the query string"
-  (let [opts (form-encode {:q query :source "lnms" :tbm "isch" :tbs "isz:m" :safe "active" })
+  (let [opts (form-encode {:q query :source "lnms" :tbm "isch" :tbs "isz:m,ift:jpg" :safe "active" })
         url (str "https://www.google.com/search?" opts)
         headers {"User-Agent" "Mozilla/5.0 (Windows NT 6.1;) Gecko/20100101 Firefox/13.0.1"}]
     (->> (client/get url {:headers headers :throw-exceptions false})
