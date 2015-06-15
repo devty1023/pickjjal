@@ -1,18 +1,21 @@
 (ns pickjjal.core
   (:require [ring.util.codec :refer [form-encode]]
             [clj-http.client :as client]
+            [clojure.data.json :as json]
             [pickjjal.config :refer [slack-webhook-url]]))
 
 (def google-img-url-regex #"(?<=imgurl=)[^&]*")
 
+(def ^:dynamic send-slack #(client/post slack-webhook-url %))
+
 (defn- best-jjal [urls]
   (letfn [(large-img? [url]
-            "returns true if img is > 100 kb"
-            (let [resp (-> (client/get url {:throw-exceptions false}))]
+            "returns true if not 200 or img is > 60 kb"
+            (let [resp (client/get url {:throw-exceptions false})]
               (if (= 200 (:status resp))
                 (-> (get-in resp [:headers "Content-Length"])
                     Long/parseLong
-                    (> 100000))
+                    (> 60000))
                 true)))]
     (first (drop-while large-img? urls))))
 
@@ -27,7 +30,7 @@
          best-jjal)))
 
 (defn send-jjal [msg]
-  (client/post slack-webhook-url 
-    {:body (str "{\"text\": \"" msg "\","
-                "\"username\": \"" "짤검색기" "\"}")}))
+  (send-slack
+    {:body (json/write-str
+            {:text msg :username "짤검색기"})}))
 
