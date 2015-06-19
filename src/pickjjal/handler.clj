@@ -14,7 +14,8 @@
     (when (= token slack-incoming-token)
       (->> query
            get-jjal
-           {:query (str username ": " query " ") :username username :channel channel-id}
+           (str username ": " query " ")
+           (assoc {:channel channel-id} :query)
            send-jjal)
       (str "Processed " query))))
 
