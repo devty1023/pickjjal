@@ -32,5 +32,5 @@
 (defn send-jjal [msg]
   (send-slack
     {:body (json/write-str
-            {:text msg :username "짤검색기"})}))
+            {:text (:query msg) :username "짤검색기" :channel (:channel msg)})}))
 

@@ -13,6 +13,6 @@
 
 (deftest test-send-jjal
   (with-bindings {#'pickjjal.core/send-slack (fn [conf] conf)}
-    (let [body (-> (send-jjal "foobar") :body json/read-str)]
+    (let [body (-> (send-jjal {:query "foobar" :username "devty" :channel "2chan"}) :body json/read-str)]
       (is (= "foobar" (get body "text")))
       (is (= "짤검색기" (get body "username"))))))
