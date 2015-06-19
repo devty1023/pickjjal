@@ -10,7 +10,7 @@
   (let [token (get-in request [:params :token])
         query (get-in request [:params :text])
         username (get-in request [:params :user_name])
-        channel-id (get-in request [:params :channel-id])]
+        channel-id (get-in request [:params :channel_id])]
     (when (= token slack-incoming-token)
       (->> query
            get-jjal
