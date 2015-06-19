@@ -8,11 +8,14 @@
 
 (defn pickjjal [request]
   (let [token (get-in request [:params :token])
-        query (get-in request [:params :text])]
+        query (get-in request [:params :text])
+        username (get-in request [:params :user_name])
+        channel-id (get-in request [:params :channel-id])]
     (when (= token slack-incoming-token)
       (->> query
            get-jjal
-           (str query ": ")
+           (str username ": " query " ")
+           (assoc {:channel channel-id} :query)
            send-jjal)
       (str "Processed " query))))
 
